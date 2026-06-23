@@ -227,11 +227,11 @@ export class ScanService {
         take: 5,
         select: { id: true, name: true, riskScore: true, createdAt: true, passed: true },
       }),
-      prisma.finding.groupBy({
+      (prisma.finding.groupBy as any)({
         by: ['severity'],
         where: { scan: { orgId } },
         orderBy: { severity: 'asc' },
-        _count: true,
+        _count: { severity: true },
       }),
       prisma.scan.findMany({
         where: { orgId, status: 'COMPLETED' },
