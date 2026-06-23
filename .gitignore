@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.next/
+.env
+*.log
+logs/
+uploads/
+coverage/
+.turbo/
+*.tsbuildinfo
+.DS_Store
+__pycache__/
+*.pyc
+securescout_report.*
+
+# Python packaging / build artifacts
+build/
+*.egg-info/
+.eggs/
+*.egg
+*.whl
+.venv/
+venv/
+.pytest_cache/
+
+# SecureScout auto-remediation output (generated, not source)
+**/*.fixed.*

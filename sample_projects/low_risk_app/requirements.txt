@@ -1,0 +1,9 @@
+# Clean sample — all dependencies are current, patched versions.
+# The scanner is version-aware: these are in its CVE DB but the pinned
+# versions are NEWER than the fixed version, so nothing is flagged.
+flask==3.0.0
+requests==2.31.0
+sqlalchemy==2.0.23
+pyyaml==6.0.1
+python-dotenv==1.0.0
+click==8.1.7

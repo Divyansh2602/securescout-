@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "securescout"
+version = "3.0.0"
+description = "Static analysis for vulnerable dependencies and insecure configurations, with auto-remediation. Built for CI/CD and secure-by-design development."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Divyansh Gupta" }]
+keywords = ["security", "sca", "sast", "cve", "static-analysis", "devsecops", "vulnerability", "remediation"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Security",
+  "Programming Language :: Python :: 3",
+]
+dependencies = ["packaging>=21.0"]
+
+[project.urls]
+Homepage = "https://github.com/your-org/securescout"
+
+# `securescout <target> --autofix`  after  `pip install securescout`
+[project.scripts]
+securescout = "securescout.cli.scan:main"
+
+[tool.setuptools]
+packages = ["securescout", "securescout.detectors", "securescout.cli"]

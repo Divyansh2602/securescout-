@@ -1,0 +1,29 @@
+# SecureScout — Render.com deployment (free tier, no Docker)
+services:
+  - type: web
+    name: securescout-api
+    runtime: node
+    rootDir: apps/api
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: securescout-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://securescout.vercel.app
+      - key: REDIS_URL
+        sync: false
+
+databases:
+  - name: securescout-db
+    plan: free
+    databaseName: securescout
+    user: securescout

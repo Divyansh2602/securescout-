@@ -1,0 +1,57 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint, Type-check & Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: securescout
+          POSTGRES_PASSWORD: securescout
+          POSTGRES_DB: securescout_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "18", cache: "npm" }
+      - run: npm ci
+      - name: Type-check API
+        run: cd apps/api && npx tsc --noEmit
+      - name: Type-check Web
+        run: cd apps/web && npx tsc --noEmit
+      - name: Run tests
+        run: npm test
+        env:
+          DATABASE_URL: postgresql://securescout:securescout@localhost:5432/securescout_test
+          JWT_SECRET: test-secret-key-minimum-32-characters-x
+          JWT_REFRESH_SECRET: test-refresh-secret-minimum-32-chars-x
+
+  security-scan:
+    name: SecureScout Self-Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e .
+      - name: Scan vulnerable test target
+        run: |
+          securescout ./vulnerable_bank_app \
+            --output all --json-out report.json --fail-on-critical || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: security-report, path: report.json }
+
+  # Deployment is automatic via Vercel (web) + Render (api) GitHub integrations.
+  # Push to main → both platforms auto-deploy. No Docker required.

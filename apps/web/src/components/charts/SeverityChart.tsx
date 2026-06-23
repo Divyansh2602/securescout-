@@ -1,0 +1,1 @@
+export { SeverityChart } from './index';

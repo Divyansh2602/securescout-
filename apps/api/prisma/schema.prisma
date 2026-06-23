@@ -1,0 +1,225 @@
+// SecureScout Enterprise - Prisma Schema
+// PostgreSQL + Prisma ORM
+// Designed for 10M users with proper indexing
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ORG_ADMIN
+  SECURITY_LEAD
+  DEVELOPER
+  VIEWER
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum Severity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum FindingType {
+  CVE
+  SECRET
+  WEAK_CRYPTO
+  INJECTION
+  MISCONFIG
+}
+
+enum AuditAction {
+  USER_LOGIN
+  USER_LOGOUT
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  SCAN_CREATED
+  SCAN_COMPLETED
+  SCAN_DELETED
+  REPORT_EXPORTED
+  SETTINGS_CHANGED
+  API_KEY_CREATED
+  API_KEY_REVOKED
+  ROLE_CHANGED
+}
+
+// ─── MODELS ───────────────────────────────────────────────────────────────────
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  plan        String   @default("free")
+  maxUsers    Int      @default(5)
+  maxScans    Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  scans       Scan[]
+  apiKeys     ApiKey[]
+  auditLogs   AuditLog[]
+
+  @@index([slug])
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String
+  role           Role     @default(DEVELOPER)
+  orgId          String
+  isActive       Boolean  @default(true)
+  emailVerified  Boolean  @default(false)
+  mfaEnabled     Boolean  @default(false)
+  mfaSecret      String?
+  lastLoginAt    DateTime?
+  loginAttempts  Int      @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  scans          Scan[]
+  sessions       Session[]
+  auditLogs      AuditLog[]
+
+  @@index([email])
+  @@index([orgId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique
+  keyPrefix   String
+  orgId       String
+  createdById String
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  scopes      String[]
+  createdAt   DateTime  @default(now())
+
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([keyHash])
+  @@index([orgId])
+}
+
+model Scan {
+  id            String     @id @default(cuid())
+  name          String
+  target        String
+  status        ScanStatus @default(QUEUED)
+  orgId         String
+  createdById   String
+  scanTime      Float?
+  totalFindings Int        @default(0)
+  critical      Int        @default(0)
+  high          Int        @default(0)
+  medium        Int        @default(0)
+  low           Int        @default(0)
+  info          Int        @default(0)
+  riskScore     Int        @default(0)
+  passed        Boolean    @default(false)
+  errorMessage  String?
+  metadata      Json?
+  createdAt     DateTime   @default(now())
+  completedAt   DateTime?
+  updatedAt     DateTime   @updatedAt
+
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdBy     User         @relation(fields: [createdById], references: [id])
+  findings      Finding[]
+
+  @@index([orgId])
+  @@index([createdById])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Finding {
+  id          String      @id @default(cuid())
+  scanId      String
+  type        FindingType
+  severity    Severity
+  title       String
+  description String
+  file        String
+  line        Int
+  evidence    String
+  fix         String
+  cveId       String?
+  cvssScore   Float?
+  references  String[]
+  isResolved  Boolean     @default(false)
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  notes       String?
+  createdAt   DateTime    @default(now())
+
+  scan        Scan        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([scanId])
+  @@index([severity])
+  @@index([type])
+  @@index([cveId])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  action      AuditAction
+  userId      String?
+  orgId       String?
+  resourceId  String?
+  resourceType String?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  org         Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([action])
+  @@index([createdAt])
+}

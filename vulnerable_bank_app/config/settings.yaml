@@ -1,0 +1,21 @@
+database:
+  password: "BankDB@Secure123"
+  ssl_mode: disable
+jwt:
+  secret: "bank_jwt_secret_2024"
+  expiry: 999999
+aws:
+  access_key_id: "AKIAIOSFODNN7EXAMPLE"
+encryption:
+  algorithm: DES
+  key_size: 56
+  mode: ECB
+app:
+  cors_origins: ["*"]
+logging:
+  level: DEBUG
+  log_passwords: true
+  log_card_numbers: true
+smtp:
+  password: "smtp_pass_123"
+  tls: false

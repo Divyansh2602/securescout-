@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background:       0 0% 5%;
+    --foreground:       220 20% 88%;
+    --card:             224 25% 8%;
+    --card-foreground:  220 20% 88%;
+    --popover:          224 25% 8%;
+    --popover-foreground: 220 20% 88%;
+    --primary:          237 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:        224 20% 14%;
+    --secondary-foreground: 220 20% 88%;
+    --muted:            224 20% 14%;
+    --muted-foreground: 220 10% 45%;
+    --accent:           237 84% 67%;
+    --accent-foreground: 0 0% 100%;
+    --destructive:      0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border:           224 20% 14%;
+    --input:            224 20% 14%;
+    --ring:             237 84% 67%;
+    --radius:           0.5rem;
+
+    /* Severity colors */
+    --critical: 0 72% 59%;
+    --high:     30 91% 55%;
+    --medium:   43 96% 56%;
+    --low:      142 71% 45%;
+    --info:     220 10% 45%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { font-size: 17px; }
+  body { @apply bg-background text-foreground; }
+  ::-webkit-scrollbar { @apply w-1.5; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  code, pre { font-family: var(--font-mono), monospace; }
+}
+
+@layer utilities {
+  .sev-critical { @apply bg-red-950/50 text-red-400 border border-red-800/40; }
+  .sev-high     { @apply bg-orange-950/50 text-orange-400 border border-orange-800/40; }
+  .sev-medium   { @apply bg-yellow-950/50 text-yellow-400 border border-yellow-800/40; }
+  .sev-low      { @apply bg-green-950/50 text-green-400 border border-green-800/40; }
+  .sev-info     { @apply bg-zinc-900/50 text-zinc-400 border border-zinc-700/40; }
+  .glass        { @apply bg-card/60 backdrop-blur-sm border border-border; }
+}

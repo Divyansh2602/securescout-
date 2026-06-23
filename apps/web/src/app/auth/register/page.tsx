@@ -1,0 +1,132 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuthStore } from '@/lib/store';
+import { Shield, Loader2, Eye, EyeOff } from 'lucide-react';
+
+// Mirrors the API's registerSchema so users get instant feedback.
+const schema = z.object({
+  name:     z.string().min(2, 'Name must be at least 2 characters'),
+  orgName:  z.string().min(2, 'Organization name must be at least 2 characters'),
+  email:    z.string().email('Invalid email'),
+  password: z.string()
+    .min(12, 'At least 12 characters')
+    .regex(/[A-Z]/, 'Needs an uppercase letter')
+    .regex(/[a-z]/, 'Needs a lowercase letter')
+    .regex(/[0-9]/, 'Needs a number')
+    .regex(/[^A-Za-z0-9]/, 'Needs a special character'),
+});
+
+type FormData = z.infer<typeof schema>;
+
+export default function RegisterPage() {
+  const router   = useRouter();
+  const register_ = useAuthStore(s => s.register);
+  const [showPw, setShowPw] = useState(false);
+  const [error,  setError]  = useState('');
+
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setError('');
+    try {
+      await register_(data);
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.error ?? 'Registration failed. Please try again.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <div className="text-lg font-bold">SecureScout</div>
+            <div className="text-[10px] text-muted-foreground font-mono">PSB Hackathon 2026</div>
+          </div>
+        </div>
+
+        {/* Card */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div>
+            <h1 className="text-xl font-semibold">Create account</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Set up your organization workspace</p>
+          </div>
+
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/30 text-destructive text-sm rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Full Name</label>
+              <input {...register('name')}
+                autoComplete="name"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                placeholder="Jane Doe" />
+              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Organization</label>
+              <input {...register('orgName')}
+                autoComplete="organization"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                placeholder="Acme Bank" />
+              {errors.orgName && <p className="text-xs text-destructive mt-1">{errors.orgName.message}</p>}
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Email</label>
+              <input {...register('email')}
+                type="email" autoComplete="email"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                placeholder="you@organization.com" />
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Password</label>
+              <div className="relative">
+                <input {...register('password')}
+                  type={showPw ? 'text' : 'password'} autoComplete="new-password"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 pr-9 text-sm focus:outline-none focus:ring-1 focus:ring-ring transition-colors" />
+                <button type="button" onClick={() => setShowPw(!showPw)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {errors.password
+                ? <p className="text-xs text-destructive mt-1">{errors.password.message}</p>
+                : <p className="text-[11px] text-muted-foreground mt-1">12+ chars with uppercase, lowercase, number &amp; symbol</p>}
+            </div>
+
+            <button type="submit" disabled={isSubmitting}
+              className="w-full bg-primary text-primary-foreground rounded-lg py-2 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Already have an account?{' '}
+          <a href="/auth/login" className="text-primary hover:underline font-medium">Sign in</a>
+        </p>
+      </div>
+    </div>
+  );
+}

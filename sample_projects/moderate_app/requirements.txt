@@ -1,0 +1,7 @@
+# Moderate-risk sample — a few outdated deps, no maxed-out criticals.
+flask==0.12.2
+requests==2.18.0
+pillow==5.0.0
+sqlalchemy==1.1.0
+django==1.11.0
+boto3==1.4.0
