@@ -231,7 +231,7 @@ export class ScanService {
         by: ['severity'],
         where: { scan: { orgId } },
         orderBy: { severity: 'asc' },
-        _count: { severity: true },
+        _count: { _all: true },
       }),
       prisma.scan.findMany({
         where: { orgId, status: 'COMPLETED' },
@@ -241,6 +241,10 @@ export class ScanService {
       }),
     ]);
 
-    return { totalScans, recentScans, severityCounts, trend };
+    const normalizedCounts = (severityCounts as any[]).map((s: any) => ({
+      severity: s.severity,
+      _count: s._count?._all ?? s._count ?? 0,
+    }));
+    return { totalScans, recentScans, severityCounts: normalizedCounts, trend };
   }
 }
