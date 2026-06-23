@@ -3,14 +3,14 @@ import { createHash } from 'crypto';
 import { JwtService, TokenPayload } from '../services/jwt.service';
 import { prisma } from '../config/database';
 import { AppError } from '../utils/errors';
-import { Role } from '@prisma/client';
-
 export const hashToken = (token: string): string =>
   createHash('sha256').update(token).digest('hex');
 
 export interface AuthRequest extends Request {
   user?: TokenPayload;
 }
+
+type Role = 'VIEWER' | 'DEVELOPER' | 'SECURITY_LEAD' | 'ORG_ADMIN' | 'SUPER_ADMIN';
 
 // Role hierarchy — higher index = more permissions
 const ROLE_HIERARCHY: Role[] = [

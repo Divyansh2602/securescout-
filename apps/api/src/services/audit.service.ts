@@ -1,9 +1,8 @@
 import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
-import { AuditAction, Prisma } from '@prisma/client';
 
 interface AuditInput {
-  action:       AuditAction;
+  action:       string;
   userId?:      string;
   orgId?:       string;
   resourceId?:  string;
@@ -16,7 +15,7 @@ interface AuditInput {
 export class AuditService {
   static async log(input: AuditInput): Promise<void> {
     try {
-      await prisma.auditLog.create({ data: input as Prisma.AuditLogUncheckedCreateInput });
+      await prisma.auditLog.create({ data: input as any });
     } catch (err) {
       // Never throw — audit failures must not break business logic
       logger.error('Audit log failed:', err);
