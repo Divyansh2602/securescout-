@@ -18,7 +18,7 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://securescout.vercel.app
+        value: https://securescout-web.vercel.app
       - key: REDIS_URL
         sync: false
 
