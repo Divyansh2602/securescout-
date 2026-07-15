@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Scan } from '@/types';
-import { cn, riskMeta } from '@/lib/utils';
+import { cn, riskMeta, displayTarget } from '@/lib/utils';
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 
 const STATUS_ICON = {
@@ -40,7 +40,7 @@ export function RecentScans({ scans, loading }: { scans: Scan[]; loading: boolea
                 <div className="flex-shrink-0">{STATUS_ICON[scan.status]}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">{scan.name}</div>
-                  <div className="text-xs text-muted-foreground font-mono truncate">{scan.target}</div>
+                  <div className="text-xs text-muted-foreground font-mono truncate">{displayTarget(scan.target)}</div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {scan.status === 'COMPLETED' && (

@@ -7,6 +7,19 @@ A production-grade security platform that detects vulnerable dependencies, hardc
 
 ---
 
+## 🚀 Live Demo
+
+| | URL |
+|---|---|
+| **Web app** | https://securescout-web.vercel.app |
+| **API** | https://securescout.onrender.com (health: `/health`) |
+
+**Demo login:** `demo@securescout.app` / `DemoPass123!`
+
+> Sign in, open **New Scan**, upload a `.zip` of a Python project, and view findings + auto-remediation in **Reports**.
+
+---
+
 ## Architecture
 
 ```

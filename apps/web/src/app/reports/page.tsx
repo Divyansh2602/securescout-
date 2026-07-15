@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Scan } from '@/types';
 import { AppShell } from '@/components/layout/AppShell';
-import { cn, riskMeta } from '@/lib/utils';
+import { cn, riskMeta, displayTarget } from '@/lib/utils';
 import { FileText, Loader2, ChevronRight, Scan as ScanIcon } from 'lucide-react';
 
 const STATUS_STYLE: Record<string, string> = {
@@ -78,7 +78,7 @@ export default function ReportsPage() {
                     <tr key={s.id} className="border-b border-border/50 last:border-0 hover:bg-secondary/40 transition-colors">
                       <td className="px-4 py-3">
                         <Link href={`/reports/${s.id}`} className="font-medium hover:text-primary transition-colors">{s.name}</Link>
-                        <div className="text-[11px] text-muted-foreground font-mono truncate max-w-[220px]">{s.target}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono truncate max-w-[220px]">{displayTarget(s.target)}</div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn('px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold border', STATUS_STYLE[s.status] ?? STATUS_STYLE.CANCELLED)}>

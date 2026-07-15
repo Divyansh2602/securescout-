@@ -7,7 +7,7 @@ import { Scan, Finding, Severity } from '@/types';
 import { AppShell } from '@/components/layout/AppShell';
 import { FindingsTable } from '@/components/findings/FindingsTable';
 import { RiskGauge } from '@/components/charts/RiskGauge';
-import { cn, riskMeta } from '@/lib/utils';
+import { cn, riskMeta, displayTarget } from '@/lib/utils';
 import { Download, Loader2, CheckCircle2, XCircle, Wrench, KeyRound, AlertTriangle } from 'lucide-react';
 
 interface Remediation {
@@ -192,7 +192,7 @@ export default function ReportDetailPage() {
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{scan.name}</h1>
-            <p className="text-muted-foreground text-sm mt-1 font-mono">{scan.target}</p>
+            <p className="text-muted-foreground text-sm mt-1 font-mono">{displayTarget(scan.target)}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className={cn('px-2.5 py-1 rounded-md text-xs font-mono font-semibold',
