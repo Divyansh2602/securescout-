@@ -26,16 +26,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname    = usePathname();
   const { user, logout } = useAuthStore();
   const isAdmin = user?.role === 'ORG_ADMIN' || user?.role === 'SUPER_ADMIN';
-  const [open, setOpen] = useState(false);
+  const [open, setOpen]         = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Track viewport so we can drive the drawer transform explicitly on mobile
+  // (avoids Tailwind translate-variant conflicts between the mobile drawer and
+  // the desktop static sidebar).
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   // Close the mobile drawer whenever the route changes.
   useEffect(() => { setOpen(false); }, [pathname]);
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
+    document.body.style.overflow = isMobile && open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [open]);
+  }, [isMobile, open]);
+
+  const drawerOpen = isMobile && open;
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background overflow-hidden">
@@ -54,16 +68,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Backdrop (mobile only, when drawer open) */}
-      {open && (
+      {drawerOpen && (
         <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setOpen(false)} aria-hidden="true" />
       )}
 
-      {/* Sidebar — static on desktop, off-canvas drawer on mobile */}
-      <aside className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 flex-shrink-0 border-r border-border flex flex-col bg-card',
-        'transition-transform duration-200 ease-out',
-        'md:static md:z-auto md:w-56 md:translate-x-0 md:bg-card/40',
-        open ? 'translate-x-0' : '-translate-x-full'
+      {/* Sidebar — static on desktop, off-canvas drawer on mobile.
+          On mobile the transform is set inline so no class can override it. */}
+      <aside
+        style={isMobile ? { transform: open ? 'translateX(0)' : 'translateX(-100%)' } : undefined}
+        className={cn(
+        'flex-shrink-0 border-r border-border flex flex-col',
+        'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64 max-md:bg-card max-md:transition-transform max-md:duration-200 max-md:ease-out max-md:-translate-x-full',
+        'md:static md:w-56 md:bg-card/40'
       )}>
         {/* Logo + mobile close */}
         <div className="p-4 border-b border-border flex items-center justify-between">
