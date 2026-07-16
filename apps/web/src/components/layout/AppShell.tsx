@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Shield, LayoutDashboard, Scan, FileText,
-  Users, Settings, LogOut, ChevronRight, BookOpen
+  Users, Settings, LogOut, ChevronRight, BookOpen, Menu, X
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store';
 
@@ -25,13 +26,47 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname    = usePathname();
   const { user, logout } = useAuthStore();
   const isAdmin = user?.role === 'ORG_ADMIN' || user?.role === 'SUPER_ADMIN';
+  const [open, setOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 border-r border-border flex flex-col bg-card/40">
-        {/* Logo */}
-        <div className="p-4 border-b border-border">
+    <div className="flex flex-col md:flex-row h-screen bg-background overflow-hidden">
+      {/* Mobile top bar */}
+      <header className="md:hidden flex items-center justify-between h-14 px-4 border-b border-border bg-card/40 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <div className="text-sm font-semibold text-foreground">SecureScout</div>
+        </div>
+        <button onClick={() => setOpen(true)} aria-label="Open menu"
+          className="w-9 h-9 -mr-1.5 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <Menu className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* Backdrop (mobile only, when drawer open) */}
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setOpen(false)} aria-hidden="true" />
+      )}
+
+      {/* Sidebar — static on desktop, off-canvas drawer on mobile */}
+      <aside className={cn(
+        'fixed inset-y-0 left-0 z-50 w-64 flex-shrink-0 border-r border-border flex flex-col bg-card',
+        'transition-transform duration-200 ease-out',
+        'md:static md:z-auto md:w-56 md:translate-x-0 md:bg-card/40',
+        open ? 'translate-x-0' : '-translate-x-full'
+      )}>
+        {/* Logo + mobile close */}
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
               <Shield className="w-3.5 h-3.5 text-primary" />
@@ -41,6 +76,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="text-[10px] text-muted-foreground font-mono">v3.0.0</div>
             </div>
           </div>
+          <button onClick={() => setOpen(false)} aria-label="Close menu"
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -81,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-6">{children}</div>
+        <div className="max-w-6xl mx-auto p-4 md:p-6">{children}</div>
       </main>
     </div>
   );

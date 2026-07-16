@@ -146,7 +146,7 @@ export default function ScanPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
           {[
             { label: 'CVE Detection',   desc: 'Known vulnerable dependencies' },
             { label: 'Secret Scanning', desc: 'Hardcoded keys & passwords' },

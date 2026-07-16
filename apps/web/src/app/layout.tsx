@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   title: 'SecureScout — Enterprise Security Scanner',
   description: 'Static application security scanning for banking and financial systems',
   robots: { index: false, follow: false }, // Internal tool
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0a0a0a',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
