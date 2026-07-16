@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         style={isMobile ? { transform: open ? 'translateX(0)' : 'translateX(-100%)' } : undefined}
         className={cn(
         'flex-shrink-0 border-r border-border flex flex-col',
-        'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64 max-md:bg-card max-md:transition-transform max-md:duration-200 max-md:ease-out max-md:-translate-x-full',
+        'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64 max-md:bg-card max-md:-translate-x-full',
         'md:static md:w-56 md:bg-card/40'
       )}>
         {/* Logo + mobile close */}
